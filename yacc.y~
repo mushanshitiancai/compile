@@ -74,7 +74,7 @@ program statement
 statement:
 ';'	{$$=0;}
 |expr ';'				{$$=0;}
-| VARIABLE '=' expr ';' {cout<<"VARIABLE = expr "<<endl;emit($1->name,$3); $$=0;}
+| VARIABLE '=' expr ';' {cout<<"VARIABLE = expr "<<endl;emit($1->name,$3); }
 | if_m statement %prec IFX 
 	{
 		$$=merge($2,$1);
