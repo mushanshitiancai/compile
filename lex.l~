@@ -36,7 +36,7 @@ extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需�
 	return VARIABLE;
 }
 
-[ \t]	;
+[\t]	;
 [\n]	{yylineno++;}
 .	yyerror("Unknow character");
 

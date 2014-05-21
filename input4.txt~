@@ -4,5 +4,6 @@ aa=210;aa;
 a=10;a;
 a;
 
-if(1) a=1; else 
+if (1) a=1; else b;
 
+while (1) a=1;

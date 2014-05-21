@@ -16,7 +16,6 @@ extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需�
 		char* name;
 		int value;
 	};
-
 	typedef struct Symbol_List{
 		struct Symbol* sym;
 		struct Symbol_List* next;
@@ -41,7 +40,8 @@ extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需�
 %}
 
 %union{
-	int val;
+	//int val;
+	struct Value val;
 	char data[16];
 	struct Symbol* sym;
 	struct BStruct bs;
@@ -72,22 +72,22 @@ program statement
 ;
 
 statement:
-';'	{$$=0;}
-|expr ';'				{$$=0;}
-| VARIABLE '=' expr ';' {cout<<"VARIABLE = expr "<<endl;emit($1->name,$3); $$=0;}
+';'	{$$.chain=0;}
+|expr ';'				{$$.chain=0;}
+| VARIABLE '=' expr ';' {emit($1->name,$3); $$.chain=0;}
 | if_m statement %prec IFX 
 	{
-		$$=merge($2,$1);
-		back_patch($$,get_ip());
+		$$.chain=merge($2.chain,$1.chain);
+		back_patch($$.chain,get_ip());
 	}
 | if_n statement 
 	{
-		$$=merge($2,$1);
-		back_patch($$,get_ip());
+		$$.chain=merge($2.chain,$1.chain);
+		back_patch($$.chain,get_ip());
 	}	
-| while_d statement {$$=0;}
-| '{' statement_list '}'	{$$=0;}
-| '{' '}'	{$$=0;}
+| while_d statement {$$.chain=0;}
+| '{' statement_list '}'	{$$.chain=0;}
+| '{' '}'	{$$.chain=0;}
 ;
 
 
@@ -99,20 +99,20 @@ statement			{}
 if_m:
 IF '(' B ')' {
 	back_patch($3.T,get_ip());
-	$$=$3.F;
+	$$.chain=$3.F;
 }
 ;
 if_n:
 if_m statement ELSE {
 		int q=get_ip();
 		emit_goto("0");
-		back_patch($1,get_ip());
-		$$=merge($2,q);	
+		back_patch($1.chain,get_ip());
+		$$.chain=merge($2.chain,q);	
 }
 ;
 while_w:
 WHILE {
-	$$=get_ip();
+	$$.chain=get_ip();
 }
 ;
 while_d:
@@ -130,7 +130,7 @@ expr {
 
 
 expr:
-INTEGER    {sprintf($$,"%d",$1);}
+INTEGER    {sprintf($$,"%d",$1.value);}
 | VARIABLE 		{strcpy($$,$1->name);}
 | expr '+' expr {sprintf($$,"T%d",temp_num++);emit($$,$1,"+",$3);}
 | expr '-' expr {sprintf($$,"T%d",temp_num++);emit($$,$1,"-",$3);}

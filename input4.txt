@@ -4,5 +4,5 @@ aa=210;aa;
 a=10;a;
 a;
 
-if(1) a=1; else b;
+if (1) a=1; else b;
 
